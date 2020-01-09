@@ -27,14 +27,21 @@ public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getName();
     private int mDuration;
     private ImageView mIvExpression;
+    private boolean isStart=false;
     private Runnable waitingExpression = new Runnable() {
         @Override
         public void run() {
-            loadGifImage(R.mipmap.test,R.mipmap.iv_one);
-            mHandler.postDelayed(this, 20000);
+            loadGifImage(R.mipmap.iv_careful,R.mipmap.iv_pic_one);
         }
     };
     private Intent mIntent;
+
+    private Runnable happyExpression = new Runnable() {
+        @Override
+        public void run() {
+            loadGifImage(R.mipmap.iv_happy,R.mipmap.iv_pic_two);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +53,8 @@ public class MainActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         mIvExpression = findViewById(R.id.iv_expression);
-        mHandler.postDelayed(waitingExpression,20000);
+//        mHandler.post(waitingExpression);
+        loadGifImage(R.mipmap.iv_careful,R.mipmap.iv_pic_one);
         EventBus.getDefault().register(this);
         mIntent = new Intent(this, TcpConnectionServer.class);
         startService(mIntent);
@@ -78,14 +86,21 @@ public class MainActivity extends Activity {
                                 duration += ((GifDecoder) gifDecoder).getDelay(i);
                             }
                             mDuration = duration;
-                            Log.e(TAG, "onResourceReady: duration=" + duration);
                         }
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                loadImage(resId2);
-                            }
-                        }, mDuration+100);
+//                        mHandler.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                loadImage(resId2);
+//                            }
+//                        }, mDuration+100);
+                        Log.e(TAG, "onResourceReady: duration=" + duration);
+                        if (isStart) {
+                            mHandler.postDelayed(happyExpression, mDuration + 3000);
+                        } else {
+                            mHandler.postDelayed(waitingExpression,mDuration+5000);
+                        }
+
+
                     }
                 }
                 return false;
@@ -95,20 +110,20 @@ public class MainActivity extends Activity {
     }
 
     private void loadImage(int resId) {
-        GlideApp.with(getApplication()).load(resId).placeholder(R.mipmap.iv_bg).dontAnimate().into(mIvExpression);
+        GlideApp.with(getApplication()).load(resId).placeholder(R.drawable.bg_shape).dontAnimate().into(mIvExpression);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(String  event) {
         if (event.contains("start")) {
-//            loadGifImage();
-            loadImage(R.mipmap.iv_two);
+            isStart=true;
             mHandler.removeCallbacks(waitingExpression);
+            loadGifImage(R.mipmap.iv_care_happy,R.mipmap.iv_pic_two);
         }
         if (event.contains("end")) {
-//            loadGifImage();
-            loadImage(R.mipmap.iv_three);
-            mHandler.postDelayed(waitingExpression,20000);
+            isStart=false;
+            mHandler.removeCallbacks(happyExpression);
+            loadGifImage(R.mipmap.iv_happy_sad,R.mipmap.iv_pic_one);
         }
     }
 

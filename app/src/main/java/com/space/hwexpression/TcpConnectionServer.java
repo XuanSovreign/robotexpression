@@ -35,6 +35,13 @@ public class TcpConnectionServer extends Service {
         return null;
     }
 
+    /**
+     * 连接后台
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 

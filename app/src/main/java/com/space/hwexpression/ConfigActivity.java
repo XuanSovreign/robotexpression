@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 /**
+ * 配置页面
+ * IP：port
  * Created by licht on 2019/9/5.
  */
 
